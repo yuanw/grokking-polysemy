@@ -1,0 +1,24 @@
+# Created by https://www.gitignore.io/api/haskell
+.DS_Store
+result
+.DS_Store
+### Haskell ###
+dist
+dist-newstyle
+cabal-dev
+.pre-commit-config.yaml
+*.o
+*.hi
+*.chi
+*.chs.h
+*.dyn_o
+*.dyn_hi
+.hpc
+.hsenv
+.cabal-sandbox/
+cabal.sandbox.config
+*.prof
+*.aux
+*.hp
+.stack-work/
+_cache/

@@ -1,12 +1,12 @@
 #+TITLE: Grokking Polysemy
 
 
-Libary:
+Library:
 - polysemy
 - freer-simple
 - fused-effects
 
 * References
-https://github.com/polysemy-research/polysemy
-https://www.youtube.com/watch?v=-dHFOjcK6pA
-https://www.youtube.com/watch?v=vfDazZfxlN
+- https://github.com/polysemy-research/polysemy
+- https://www.youtube.com/watch?v=-dHFOjcK6pA
+- https://www.youtube.com/watch?v=vfDazZfxlNs
