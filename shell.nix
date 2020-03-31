@@ -11,7 +11,7 @@ let
   };
 
   pkgs = import src {};
-  myHaskellPackages = pkgs.haskellPackages;
+  myHaskellPackages = pkgs.haskell.packages."${compiler}";
 
   # myPackages = myHaskellPackages.callCabal2nix "project" ./blog.cabal {};
   all-hies = import (fetchTarball "https://github.com/infinisil/all-hies/tarball/master") {};
