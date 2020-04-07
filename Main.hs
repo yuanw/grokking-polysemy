@@ -1,62 +1,50 @@
+{-# LANGUAGE BlockArguments #-}
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE GADTs #-}
 {-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE Rank2Types #-}
+{-# LANGUAGE PolyKinds #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TypeOperators #-}
 
-module Main where
+import Polysemy
+import Polysemy.Input
+import Polysemy.Output
 
-import Control.Monad ((>=>))
+data Teletype m a where
+  ReadTTY :: Teletype m String
+  WriteTTY :: String -> Teletype m ()
 
--- https://reasonablypolymorphic.com/polysemy-talk/
-data Teletype a
-  = WriteLine String a
-  | ReadLine (String -> a)
+makeSem ''Teletype
 
-data Free f k
-  = Pure k
-  | Impure (f (Free f k))
+teletypeToIO :: Member (Embed IO) r => Sem (Teletype ': r) a -> Sem r a
+teletypeToIO = interpret $ \case
+  ReadTTY -> embed getLine
+  WriteTTY msg -> embed $ putStrLn msg
 
-instance Functor f => Functor (Free f) where
-  fmap f (Pure k) = Pure (f k)
-  fmap f (Impure a) = Impure $ (fmap . fmap) f a
+runTeletypePure :: [String] -> Sem (Teletype ': r) a -> Sem r ([String], a)
+runTeletypePure i =
+  runOutputMonoid pure
+    . runInputList i
+    . reinterpret2 \case
+      ReadTTY -> maybe "" id <$> input
+      WriteTTY msg -> output msg
 
-instance Functor f => Applicative (Free f) where
-  pure = Pure
-
-  -- f :: a -> b
-  -- b :: Free f k (a)
-  Pure f <*> b = fmap f b
-  -- x :: f (a -> b)
-  -- y :: Free f k (a)
-  Impure x <*> y = Impure (fmap (<*> y) x)
-
-instance Functor f => Monad (Free f) where
-  Pure k >>= f = f k
-  Impure z >>= f = Impure $ fmap (>>= f) z
-
-readLine :: Free Teletype String
-readLine = Impure $ ReadLine pure
-
-writeLine :: String -> Free Teletype ()
-writeLine msg = Impure $ WriteLine msg $ pure ()
-
-echo :: Free Teletype ()
+echo :: Member Teletype r => Sem r ()
 echo = do
-  msg <- readLine
-  writeLine msg
+  i <- readTTY
+  case i of
+    "" -> pure ()
+    _ -> writeTTY i >> echo
 
-instance Functor Teletype where
-  fmap f (WriteLine msg t) = WriteLine msg $ f t
-  fmap f (ReadLine g) = ReadLine (f . g)
+-- Let's pretend
+echoPure :: [String] -> Sem '[] ([String], ())
+echoPure = flip runTeletypePure echo
 
-runFree :: Monad m => (forall x. f x -> m x) -> Free f a -> m a
-runFree _ (Pure a) = pure a
-runFree f (Impure k) = f k >>= runFree f
+pureOutput :: [String] -> [String]
+pureOutput = fst . run . echoPure
 
-runTeletypeInIO :: Free Teletype a -> IO a
-runTeletypeInIO = runFree $ \case
-  WriteLine msg k -> do
-    putStrLn msg
-    pure k
-  ReadLine k -> k <$> getLine
-
+-- echo forever
 main :: IO ()
-main = runTeletypeInIO echo
+main = runM . teletypeToIO $ echo

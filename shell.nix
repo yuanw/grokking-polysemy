@@ -13,12 +13,11 @@ let
   pkgs = import src {};
   myHaskellPackages = pkgs.haskell.packages."${compiler}";
 
-  # myPackages = myHaskellPackages.callCabal2nix "project" ./blog.cabal {};
-  all-hies = import (fetchTarball "https://github.com/infinisil/all-hies/tarball/master") {};
+  myPackages = myHaskellPackages.callCabal2nix "project" ./grokking-polysemy.cabal {};
 in
 myHaskellPackages.shellFor {
   withHoogle = true;
-  packages = p: [];
+  packages = p: [ myPackages ];
   inherit ((import ./pre-commit.nix).pre-commit-check) shellHook;
   buildInputs = with myHaskellPackages;
     [
@@ -28,6 +27,5 @@ myHaskellPackages.shellFor {
       ormolu
       cabal-install
       cabal-fmt
-      (all-hies.selection { selector = p: { inherit (p) ghc882; }; })
     ];
 }

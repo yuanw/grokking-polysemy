@@ -13,5 +13,6 @@ let
   };
 
   pkgs = import src {};
+  myHaskellPackages = pkgs.haskell.packages."${compiler}";
 in
-pkgs.haskellPackages.callPackage ./grokking-polysemy.nix {}
+myHaskellPackages.callPackage ./grokking-polysemy.nix {}

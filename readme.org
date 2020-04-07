@@ -1,10 +1,65 @@
 #+TITLE: Grokking Polysemy
 
+Algebraic Effects
+Computational Effect
 
 Library:
 - polysemy
 - freer-simple
 - fused-effects
+
+* Motivation
+** Monad doesn't compose
+** Monad Transformers (Liang, Hudak & Jones 1995)
+** Effect Handler (Plotkin & Power 2003)
+Two sides
+
+- Syntax - Free Monad
+#+begin_src haskell
+data Free f a
+  = Var a
+  | Op (f (Free f a))
+
+data Or k = Or k k
+
+Op (Or (Var 3) (Var 4))
+#+end_src
+- Semantics
+
+#+begin_src haskell
+type Alg f a = f a -> a
+eval :: Functor f => (f b -> b) -> (a -> b) -> Free f a -> b
+eval alg gen (Var x) = gen x
+eval alg gen (Op x) = alg (fmap (eval alg gen) x)
+
+a :: Free Stop Int
+a = Pure 4
+
+b :: Free Stop Int
+b = Impure Stop
+
+main :: IO ()
+main = do
+  print $ stop a
+  print $ stop b
+#+end_src
+
+Example: Stop
+
+#+begin_src haskell
+data Stop k = Stop
+
+stop :: Free Stop a -> Maybe a
+stop = eval alg gen where
+  alg :: Stop (Maybe a) -> Maybe a
+  alg Stop = Nothing
+
+  gen :: a -> Maybe a
+  gen x = Just x
+
+stop (Var 3)
+stop (Op Stop)
+#+end_src
 
 * What is Free Monad
 
@@ -64,3 +119,12 @@ main = runTeletypeInIO echo
 - https://www.youtube.com/watch?v=-dHFOjcK6pA
 - https://www.youtube.com/watch?v=vfDazZfxlNs
 - https://reasonablypolymorphic.com/polysemy-talk/
+- http://okmij.org/ftp/Haskell/extensible/more.pdf
+- https://github.com/lexi-lambda/freer-simple#readme
+- https://github.com/fused-effects/fused-effects
+
+https://twitter.com/nicolasgwu
+ http://bit.ly/2paQmRi
+
+http://www.cs.ox.ac.uk/people/nicolas.wu/papers/Scope.pdf
+ ICFP2019 Monad Transformers & Modular Algebraic Effect

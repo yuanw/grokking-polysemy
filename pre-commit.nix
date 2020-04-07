@@ -6,7 +6,7 @@ in
     src = ./.;
     hooks = {
       nixpkgs-fmt.enable = true;
-      hlint.enable = true;
+      #hlint.enable = true;
       cabal-fmt.enable = true;
       ormolu.enable = true;
     };
