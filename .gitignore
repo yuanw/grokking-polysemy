@@ -2,13 +2,15 @@
 .DS_Store
 result
 .DS_Store
+
+
 ### Haskell ###
 dist
-dist-newstyle
+dist-*
 cabal-dev
-.pre-commit-config.yaml
 *.o
 *.hi
+*.hie
 *.chi
 *.chs.h
 *.dyn_o
@@ -20,5 +22,11 @@ cabal.sandbox.config
 *.prof
 *.aux
 *.hp
+*.eventlog
 .stack-work/
-_cache/
+cabal.project.local
+cabal.project.local~
+.HTF/
+.ghc.environment.*
+
+.pre-commit-config.yaml

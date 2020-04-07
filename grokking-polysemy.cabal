@@ -24,15 +24,15 @@ extra-source-files:
 
 executable grokking-polysemy
   main-is:          Main.hs
-  ghc-options:      -threaded -rtsopts -with-rtsopts=-N -O2
+  ghc-options:
+    -threaded -rtsopts -with-rtsopts=-N -fplugin=Polysemy.Plugin -O2
 
   -- other-modules:
   -- other-extensions:
   build-depends:
-      base      >=4.13 && <4.14
+      base             >=4.13 && <4.14
     , polysemy
-
-  --, polysemy-plugin
+    , polysemy-plugin
 
   -- hs-source-dirs:
   default-language: Haskell2010
