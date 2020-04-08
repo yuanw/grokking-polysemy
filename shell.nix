@@ -1,4 +1,4 @@
-{ nixpkgs ? import <nixpkgs> {}, compiler ? "ghc882" }:
+{ nixpkgs ? import <nixpkgs> {}, compiler ? "ghc883" }:
 let
   bootstrap = import <nixpkgs> {};
 
@@ -12,7 +12,6 @@ let
 
   pkgs = import src {};
   myHaskellPackages = pkgs.haskell.packages."${compiler}";
-
   myPackages = myHaskellPackages.callCabal2nix "project" ./grokking-polysemy.cabal {};
 in
 myHaskellPackages.shellFor {
@@ -26,6 +25,5 @@ myHaskellPackages.shellFor {
       cabal2nix
       ormolu
       cabal-install
-      cabal-fmt
     ];
 }

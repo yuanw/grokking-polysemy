@@ -8,43 +8,58 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeOperators #-}
 
+module Main where
+
 import Polysemy
-import Polysemy.Input
-import Polysemy.Output
+import System.Random (randomIO)
 
-data Teletype m a where
-  ReadTTY :: Teletype m String
-  WriteTTY :: String -> Teletype m ()
+data Console m a where
+  PrintLine :: String -> Console m ()
+  ReadLine :: Console m String
 
-makeSem ''Teletype
+makeSem ''Console
 
-teletypeToIO :: Member (Embed IO) r => Sem (Teletype ': r) a -> Sem r a
-teletypeToIO = interpret $ \case
-  ReadTTY -> embed getLine
-  WriteTTY msg -> embed $ putStrLn msg
+runConsoleIO ::
+  Member (Embed IO) r =>
+  Sem (Console ': r) a ->
+  Sem r a
+runConsoleIO = interpret $ \case
+  PrintLine line -> embed $ putStrLn line
+  ReadLine -> embed getLine
 
-runTeletypePure :: [String] -> Sem (Teletype ': r) a -> Sem r ([String], a)
-runTeletypePure i =
-  runOutputMonoid pure
-    . runInputList i
-    . reinterpret2 \case
-      ReadTTY -> maybe "" id <$> input
-      WriteTTY msg -> output msg
+runConsolePure :: String -> Sem (Console ': r) a -> Sem r a
+runConsolePure input = interpret $ \case
+  PrintLine _ -> pure ()
+  ReadLine -> pure input
 
-echo :: Member Teletype r => Sem r ()
-echo = do
-  i <- readTTY
-  case i of
-    "" -> pure ()
-    _ -> writeTTY i >> echo
+--printLine :: Member Console r => String -> Sem r ()
+--readLine :: Member Console r => Sem r String
 
--- Let's pretend
-echoPure :: [String] -> Sem '[] ([String], ())
-echoPure = flip runTeletypePure echo
+data Random v m a where
+  NextRandom :: Random v m v
 
-pureOutput :: [String] -> [String]
-pureOutput = fst . run . echoPure
+makeSem ''Random
 
--- echo forever
+runRandomIO :: Member (Embed IO) r => Sem (Random Int ': r) a -> Sem r a
+runRandomIO = interpret $ \case
+  NextRandom -> embed randomIO
+
+runRandomPure :: Int -> Sem (Random Int ': r) a -> Sem r a
+runRandomPure v = interpret $ \case
+  NextRandom -> pure v
+
+program ::
+  Member Console r =>
+  Member (Random Int) r =>
+  Sem r Int
+program = do
+  printLine "Insert your number:"
+  i1 <- readLine
+  i2 <- nextRandom
+  pure (read i1 + i2)
+
 main :: IO ()
-main = runM . teletypeToIO $ echo
+main = print a
+  where
+    --execute = runM . runRandomIO . runConsoleIO $ program
+    a = run . runConsolePure "10" . runRandomPure 20 $ program
