@@ -33,6 +33,7 @@ executable grokking-polysemy
       base             >=4.13 && <4.14
     , polysemy
     , polysemy-plugin
+    , random
 
   -- hs-source-dirs:
   default-language: Haskell2010
