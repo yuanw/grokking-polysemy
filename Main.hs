@@ -32,9 +32,6 @@ runConsolePure input = interpret $ \case
   PrintLine _ -> pure ()
   ReadLine -> pure input
 
---printLine :: Member Console r => String -> Sem r ()
---readLine :: Member Console r => Sem r String
-
 data Random v m a where
   NextRandom :: Random v m v
 
@@ -59,7 +56,7 @@ program = do
   pure (read i1 + i2)
 
 main :: IO ()
-main = print a
+main = execute >>= print
   where
-    --execute = runM . runRandomIO . runConsoleIO $ program
-    a = run . runConsolePure "10" . runRandomPure 20 $ program
+    execute = runM . runRandomIO . runConsoleIO $ program
+--a = run . runConsolePure "10" . runRandomPure 20 $ program

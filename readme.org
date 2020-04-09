@@ -1,5 +1,57 @@
 #+TITLE: Grokking Polysemy
 
+* Motivation
+** Monad doesn't compose
+** Monad Transformers (Liang, Hudak & Jones 1995)
+** Effect Handler (Plotkin & Power 2003)
+Two sides
+
+- Syntax - Free Monad
+#+begin_src haskell
+data Free f a
+  = Var a
+  | Op (f (Free f a))
+
+data Or k = Or k k
+
+Op (Or (Var 3) (Var 4))
+#+end_src
+- Semantics
+
+#+begin_src haskell
+type Alg f a = f a -> a
+eval :: Functor f => (f b -> b) -> (a -> b) -> Free f a -> b
+eval alg gen (Var x) = gen x
+eval alg gen (Op x) = alg (fmap (eval alg gen) x)
+
+a :: Free Stop Int
+a = Pure 4
+
+b :: Free Stop Int
+b = Impure Stop
+
+main :: IO ()
+main = do
+  print $ stop a
+  print $ stop b
+#+end_src
+
+Example: Stop
+
+#+begin_src haskell
+data Stop k = Stop
+
+stop :: Free Stop a -> Maybe a
+stop = eval alg gen where
+  alg :: Stop (Maybe a) -> Maybe a
+  alg Stop = Nothing
+
+  gen :: a -> Maybe a
+  gen x = Just x
+
+stop (Var 3)
+stop (Op Stop)
+#+end_src
 
 * [[http://www.cs.ru.nl/~W.Swierstra/Publications/DataTypesALaCarte.pdf][Data types a` la carte]]
 When I looked into Effect work, lots of them references this Data types a la
@@ -178,6 +230,71 @@ main = print $ pretty x
 
 *** TypeOperators
  https://typeclasses.com/ghc/type-operators
+
+* What is Free Monad
+
+** Teletype example
+#+begin_src haskell
+import Control.Monad ((>=>))
+
+data Teletype k
+  = Done k
+  | WriteLine String (Teletype k)
+  | ReadLine (String -> Teletype k)
+
+--echo :: Teletype ()
+--echo = ReadLine $ \ msg -> WriteLine msg $ Done ()
+echo :: Teletype ()
+echo = do
+  msg <- ReadLine Done
+  WriteLine msg $ Done ()
+
+runTeletypeInIO :: Teletype a -> IO a
+runTeletypeInIO (Done a) = pure a
+runTeletypeInIO (WriteLine msg k) = do
+  putStrLn msg
+  runTeletypeInIO k
+runTeletypeInIO (ReadLine k) = do
+  msg <- getLine
+  runTeletypeInIO $ k msg
+
+instance Functor Teletype where
+  fmap f (Done g) = Done (f g)
+  fmap f (WriteLine msg t) = WriteLine msg $ fmap f t
+  fmap f (ReadLine g) = ReadLine (fmap f . g)
+
+instance Applicative Teletype where
+  pure = Done
+  Done f <*> g = fmap f g
+  (WriteLine msg f) <*> g = WriteLine msg $ f <*> g
+  -- f :: String -> Teletype (a -> b)
+  -- g :: Teletype a
+  -- String -> Teletype b
+  (ReadLine f) <*> g = ReadLine $ \msg -> f msg <*> g
+
+instance Monad Teletype where
+  Done k >>= f = f k
+  WriteLine msg k >>= f = WriteLine msg $ k >>= f
+  ReadLine k >>= f = ReadLine $ k >=> f
+
+main :: IO ()
+main = runTeletypeInIO echo
+#+end_src
+
+** TODO verify the functor/applicative/moand implement is correct
+** TODO benchmark ??
+** TODO checkout [[https://hackage.haskell.org/package/free-5.0.2/docs/Control-Monad-Free.html][Control-Monad-Free]]
+** `lift` and `foldFree`
+* Type level programming in haskell
+
+
+Algebraic Effects
+Computational Effect
+
+Library:
+- polysemy
+- freer-simple
+- fused-effects
 
 * [[https://skillsmatter.com/skillscasts/14349-the-scope-of-algebraic-effects?utm_medium=social&utm_source=twitter&utm_campaign=7be06e&utm_content=haskellx][The Scope of algebraic effects]]
 https://www.cs.ox.ac.uk/people/nicolas.wu/papers/Scope.pdf
@@ -372,125 +489,6 @@ https://www.youtube.com/watch?v=idU7GdlfP9Q at 23:16
 
 https://github.com/EncodePanda/todo-rest/tree/master/src
 
-
-* Type level programming in haskell
-
-
-Algebraic Effects
-Computational Effect
-
-Library:
-- polysemy
-- freer-simple
-- fused-effects
-
-* Motivation
-** Monad doesn't compose
-** Monad Transformers (Liang, Hudak & Jones 1995)
-** Effect Handler (Plotkin & Power 2003)
-Two sides
-
-- Syntax - Free Monad
-#+begin_src haskell
-data Free f a
-  = Var a
-  | Op (f (Free f a))
-
-data Or k = Or k k
-
-Op (Or (Var 3) (Var 4))
-#+end_src
-- Semantics
-
-#+begin_src haskell
-type Alg f a = f a -> a
-eval :: Functor f => (f b -> b) -> (a -> b) -> Free f a -> b
-eval alg gen (Var x) = gen x
-eval alg gen (Op x) = alg (fmap (eval alg gen) x)
-
-a :: Free Stop Int
-a = Pure 4
-
-b :: Free Stop Int
-b = Impure Stop
-
-main :: IO ()
-main = do
-  print $ stop a
-  print $ stop b
-#+end_src
-
-Example: Stop
-
-#+begin_src haskell
-data Stop k = Stop
-
-stop :: Free Stop a -> Maybe a
-stop = eval alg gen where
-  alg :: Stop (Maybe a) -> Maybe a
-  alg Stop = Nothing
-
-  gen :: a -> Maybe a
-  gen x = Just x
-
-stop (Var 3)
-stop (Op Stop)
-#+end_src
-
-* What is Free Monad
-
-** Teletype example
-#+begin_src haskell
-import Control.Monad ((>=>))
-
-data Teletype k
-  = Done k
-  | WriteLine String (Teletype k)
-  | ReadLine (String -> Teletype k)
-
---echo :: Teletype ()
---echo = ReadLine $ \ msg -> WriteLine msg $ Done ()
-echo :: Teletype ()
-echo = do
-  msg <- ReadLine Done
-  WriteLine msg $ Done ()
-
-runTeletypeInIO :: Teletype a -> IO a
-runTeletypeInIO (Done a) = pure a
-runTeletypeInIO (WriteLine msg k) = do
-  putStrLn msg
-  runTeletypeInIO k
-runTeletypeInIO (ReadLine k) = do
-  msg <- getLine
-  runTeletypeInIO $ k msg
-
-instance Functor Teletype where
-  fmap f (Done g) = Done (f g)
-  fmap f (WriteLine msg t) = WriteLine msg $ fmap f t
-  fmap f (ReadLine g) = ReadLine (fmap f . g)
-
-instance Applicative Teletype where
-  pure = Done
-  Done f <*> g = fmap f g
-  (WriteLine msg f) <*> g = WriteLine msg $ f <*> g
-  -- f :: String -> Teletype (a -> b)
-  -- g :: Teletype a
-  -- String -> Teletype b
-  (ReadLine f) <*> g = ReadLine $ \msg -> f msg <*> g
-
-instance Monad Teletype where
-  Done k >>= f = f k
-  WriteLine msg k >>= f = WriteLine msg $ k >>= f
-  ReadLine k >>= f = ReadLine $ k >=> f
-
-main :: IO ()
-main = runTeletypeInIO echo
-#+end_src
-
-** TODO verify the functor/applicative/moand implement is correct
-** TODO benchmark ??
-** TODO checkout [[https://hackage.haskell.org/package/free-5.0.2/docs/Control-Monad-Free.html][Control-Monad-Free]]
-** `lift` and `foldFree`
 * References
 - https://github.com/polysemy-research/polysemy
 - https://www.youtube.com/watch?v=-dHFOjcK6pA
