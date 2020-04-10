@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 696676bfd8127ea69effd874ba63b40f2098383839bc67a305b3c6fd98a5cc1c
+-- hash: b3786784ba00e7e1f7f287579b83316be586ddcde15a184d281f84dab637d7d4
 
 name:          grokking-polysemy
 version:       0.1.0.0
@@ -24,6 +24,10 @@ source-repository head
   location: https://github.com/yuanw/grokking-polysemy
 
 library
+  exposed-modules:
+    Compose
+    DataAlaCarte
+
   other-modules:      Paths_grokking_polysemy
   hs-source-dirs:     src
   default-extensions: OverloadedStrings

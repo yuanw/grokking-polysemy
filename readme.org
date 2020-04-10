@@ -1,7 +1,32 @@
 #+TITLE: Grokking Polysemy
 
+Algebraic Effects
+Computational Effect
+
+Library:
+- polysemy
+- freer-simple
+- fused-effects
+
 * Motivation
 ** Monad doesn't compose
+#+begin_src haskell
+import Control.Applicative (liftA2)
+
+newtype Compose f g a = Compose (f (g a))
+
+instance (Functor f, Functor g) => Functor (Compose f g) where
+  fmap f (Compose h) = Compose $ (fmap . fmap) f h
+
+instance (Applicative f, Applicative g) => Applicative (Compose f g) where
+  pure = Compose . pure . pure
+  Compose f <*> Compose x = Compose (liftA2 (<*>) f x)
+
+instance (Monad f, Monad g) => Monad (Compose f g) where
+  Compose x >>= mf = undefined
+      where a = (fmap . fmap) mf x
+#+end_src
+
 ** Monad Transformers (Liang, Hudak & Jones 1995)
 ** Effect Handler (Plotkin & Power 2003)
 Two sides
@@ -303,15 +328,9 @@ main = runTeletypeInIO echo
 ** TODO checkout [[https://hackage.haskell.org/package/free-5.0.2/docs/Control-Monad-Free.html][Control-Monad-Free]]
 ** `lift` and `foldFree`
 * Type level programming in haskell
-
-
-Algebraic Effects
-Computational Effect
-
-Library:
-- polysemy
-- freer-simple
-- fused-effects
+haskell higher order kind type level programming
+https://www.microsoft.com/en-us/research/uploads/prod/2019/03/unsaturated-type-families-icfp-2019.pdf
+** Associated type families
 
 * Genrics
 https://hackage.haskell.org/package/base-4.12.0.0/docs/src/GHC.Generics.html#%3A%2B%3A
