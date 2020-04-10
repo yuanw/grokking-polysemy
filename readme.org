@@ -78,6 +78,11 @@ signatures.
 
 Coproduct is a fancy way for Sum type
 
+#+begin_src haskell
+import GHC.Types (Type)
+data (:+:) (f :: k -> Type) (g :: k -> Type) (e :: k)  = Inl (f e) | Inr (g e)
+#+end_src
+
 ~data (f :+:g) e = Inl (f e) | Inr (g e)~
 
 #+begin_src haskell
@@ -85,7 +90,19 @@ data CoProduct f g e = Inl (f e) | Inr (g e)
 #+end_src
 kind of ~f~ and ~g~ is ~*->*~
 
+#+begin_src haskell
+addExample :: Expr (Val :+: Add)
+addExample = In (Inr (Add
+                       (In
+                          (Inl (Val 118))
+                       )
+                       (In (Inl (Val 1219))))
+                )
+#+end_src
+
 *** TODO proof ~CoProduct Val Add~ is the orignal ~Expr~.
+
+
 *** TODO find the definition of `injection`
 
 https://mathworld.wolfram.com/Injection.html
@@ -295,6 +312,11 @@ Library:
 - polysemy
 - freer-simple
 - fused-effects
+
+* Genrics
+https://hackage.haskell.org/package/base-4.12.0.0/docs/src/GHC.Generics.html#%3A%2B%3A
+https://www.stackbuilders.com/tutorials/haskell/generics/
+https://hackage.haskell.org/package/ghc-prim-0.5.3/docs/src/GHC.Types.html#Type
 
 * [[https://skillsmatter.com/skillscasts/14349-the-scope-of-algebraic-effects?utm_medium=social&utm_source=twitter&utm_campaign=7be06e&utm_content=haskellx][The Scope of algebraic effects]]
 https://www.cs.ox.ac.uk/people/nicolas.wu/papers/Scope.pdf

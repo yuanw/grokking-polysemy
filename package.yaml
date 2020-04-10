@@ -1,0 +1,29 @@
+library:
+  source-dirs: src
+dependencies:
+- base >= 4.7 && < 5
+- polysemy
+- polysemy-plugin
+- random
+default-extensions:
+- OverloadedStrings
+name: grokking-polysemy
+version: 0.1.0.0
+author: Yuan Wang
+github: yuanw/grokking-polysemy
+license: MIT
+executables:
+  grokking-polysemy-exe:
+    source-dirs: app
+    main: Main.hs
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    - -fplugin=Polysemy.Plugin
+    - -O2
+    - -flate-specialise
+    - -fspecialise-aggressively
+    dependencies:
+    - grokking-polysemy
+description: Please see the README on GitHub at <https://github.com/yuanw/grokking-polysemy#readme>
