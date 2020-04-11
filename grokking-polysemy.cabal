@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 66f187c309b7e49c4f1c3dd8d5aae4cb2cc55dd632f0ea925f7b094b3c934ea0
+-- hash: cf82224bf199e128c3a98b94c2008e19f482837f324452c5a98441eae22cd4fc
 
 name:          grokking-polysemy
 version:       0.1.0.0
@@ -33,12 +33,10 @@ library
   hs-source-dirs:     src
   default-extensions: OverloadedStrings
   build-depends:
-      base                 >=4.7 && <5
-    , persistent
-    , persistent-sqlite
-    , persistent-template
+      base               >=4.7 && <5
     , polysemy
     , polysemy-plugin
+    , postgresql-simple
     , random
 
   default-language:   Haskell2010
@@ -53,13 +51,11 @@ executable grokking-polysemy-exe
     -flate-specialise -fspecialise-aggressively
 
   build-depends:
-      base                 >=4.7 && <5
+      base               >=4.7 && <5
     , grokking-polysemy
-    , persistent
-    , persistent-sqlite
-    , persistent-template
     , polysemy
     , polysemy-plugin
+    , postgresql-simple
     , random
 
   default-language:   Haskell2010

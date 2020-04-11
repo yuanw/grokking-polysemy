@@ -2,9 +2,7 @@ library:
   source-dirs: src
 dependencies:
 - base >= 4.7 && < 5
-- persistent
-- persistent-sqlite
-- persistent-template
+- postgresql-simple
 - polysemy
 - polysemy-plugin
 - random

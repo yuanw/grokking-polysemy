@@ -1,7 +1,6 @@
 # Created by https://www.gitignore.io/api/haskell
 .DS_Store
 result
-.DS_Store
 
 
 ### Haskell ###
@@ -29,4 +28,9 @@ cabal.project.local~
 .HTF/
 .ghc.environment.*
 
+#cachix/pre-commit
 .pre-commit-config.yaml
+
+#database
+.tmp
+logfile

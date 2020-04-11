@@ -328,6 +328,7 @@ main = runTeletypeInIO echo
 ** TODO checkout [[https://hackage.haskell.org/package/free-5.0.2/docs/Control-Monad-Free.html][Control-Monad-Free]]
 ** `lift` and `foldFree`
 * Type level programming in haskell
+https://www.youtube.com/watch?v=ZiGIBU0haOk
 haskell higher order kind type level programming
 https://www.microsoft.com/en-us/research/uploads/prod/2019/03/unsaturated-type-families-icfp-2019.pdf
 ** Associated type families
@@ -544,3 +545,12 @@ https://twitter.com/nicolasgwu
 
 http://www.cs.ox.ac.uk/people/nicolas.wu/papers/Scope.pdf
  ICFP2019 Monad Transformers & Modular Algebraic Effect
+* Setup dev database
+https://beb.ninja/post/postgres-local/
+https://www.postgresql.org/docs/11/app-pg-ctl.html
+#+begin_src shell
+initdb -D .tmp/database # Change the directory to wherever you want your data store to be
+pg_ctl -D .tmp/database -l logfile start
+pg_crul -D .tmp/database stop
+createdb
+#+end_src

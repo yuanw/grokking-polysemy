@@ -1,11 +1,9 @@
 { mkDerivation
 , base
 , hpack
-, persistent
-, persistent-sqlite
-, persistent-template
 , polysemy
 , polysemy-plugin
+, postgresql-simple
 , random
 , stdenv
 }:
@@ -17,21 +15,17 @@ mkDerivation {
   isExecutable = true;
   libraryHaskellDepends = [
     base
-    persistent
-    persistent-sqlite
-    persistent-template
     polysemy
     polysemy-plugin
+    postgresql-simple
     random
   ];
   libraryToolDepends = [ hpack ];
   executableHaskellDepends = [
     base
-    persistent
-    persistent-sqlite
-    persistent-template
     polysemy
     polysemy-plugin
+    postgresql-simple
     random
   ];
   prePatch = "hpack";
