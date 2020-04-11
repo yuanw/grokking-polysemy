@@ -27,6 +27,11 @@ instance (Monad f, Monad g) => Monad (Compose f g) where
       where a = (fmap . fmap) mf x
 #+end_src
 
+
+~mf :: a -> Compose f (g b)~ and ~x :: f (g a)~
+~(fmap . fmap) mf x~ can give us ~f (g (Compose f (g b))~, Monad has a ~join~
+method to flatten nested monad, only if we build a function ~f g(a) -> g (f a)~
+
 ** Monad Transformers (Liang, Hudak & Jones 1995)
 ** Effect Handler (Plotkin & Power 2003)
 Two sides

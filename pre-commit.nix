@@ -9,6 +9,7 @@ in
       hlint.enable = true;
       cabal-fmt.enable = true;
       ormolu.enable = true;
+      yamllint.enable = true;
     };
   };
 }
