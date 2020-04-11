@@ -8,6 +8,8 @@ Library:
 - freer-simple
 - fused-effects
 
+https://github.com/yallop/effects-bibliography
+
 * Motivation
 ** Monad doesn't compose
 #+begin_src haskell
