@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: b3786784ba00e7e1f7f287579b83316be586ddcde15a184d281f84dab637d7d4
+-- hash: 66f187c309b7e49c4f1c3dd8d5aae4cb2cc55dd632f0ea925f7b094b3c934ea0
 
 name:          grokking-polysemy
 version:       0.1.0.0
@@ -27,12 +27,16 @@ library
   exposed-modules:
     Compose
     DataAlaCarte
+    Effects
 
   other-modules:      Paths_grokking_polysemy
   hs-source-dirs:     src
   default-extensions: OverloadedStrings
   build-depends:
-      base             >=4.7 && <5
+      base                 >=4.7 && <5
+    , persistent
+    , persistent-sqlite
+    , persistent-template
     , polysemy
     , polysemy-plugin
     , random
@@ -49,8 +53,11 @@ executable grokking-polysemy-exe
     -flate-specialise -fspecialise-aggressively
 
   build-depends:
-      base               >=4.7 && <5
+      base                 >=4.7 && <5
     , grokking-polysemy
+    , persistent
+    , persistent-sqlite
+    , persistent-template
     , polysemy
     , polysemy-plugin
     , random

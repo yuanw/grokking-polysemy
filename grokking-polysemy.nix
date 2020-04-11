@@ -1,16 +1,40 @@
-{ mkDerivation, base, polysemy, polysemy-plugin, random, stdenv }:
+{ mkDerivation
+, base
+, hpack
+, persistent
+, persistent-sqlite
+, persistent-template
+, polysemy
+, polysemy-plugin
+, random
+, stdenv
+}:
 mkDerivation {
   pname = "grokking-polysemy";
   version = "0.1.0.0";
   src = ./.;
-  isLibrary = false;
+  isLibrary = true;
   isExecutable = true;
-  executableHaskellDepends = [
+  libraryHaskellDepends = [
     base
+    persistent
+    persistent-sqlite
+    persistent-template
     polysemy
     polysemy-plugin
     random
   ];
-  license = "unknown";
-  hydraPlatforms = stdenv.lib.platforms.none;
+  libraryToolDepends = [ hpack ];
+  executableHaskellDepends = [
+    base
+    persistent
+    persistent-sqlite
+    persistent-template
+    polysemy
+    polysemy-plugin
+    random
+  ];
+  prePatch = "hpack";
+  homepage = "https://github.com/yuanw/grokking-polysemy#readme";
+  license = stdenv.lib.licenses.mit;
 }
